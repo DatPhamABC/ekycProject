@@ -1,0 +1,25 @@
+{% extends "id_capture/base.html" %}
+{% block css %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'import.css' %}">
+{% endblock %}
+
+{% block title %}
+    Sign up
+{% endblock %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block body %}
+    <div class="wrapper">
+        <div class="container">
+            <h1>Upload a file</h1>
+            <div class="inner-container">
+                <div class="border-container">
+                    <img src="{% url 'facial_capture' %}" alt="">
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
