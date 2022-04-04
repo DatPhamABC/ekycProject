@@ -1,4 +1,5 @@
 import cv2
+import face_recognition
 import pytesseract
 from thefuzz import fuzz
 import numpy as np
@@ -9,9 +10,9 @@ def image_preprocessing(image, student_info):
     print(type(image))
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    thresh, im_bw = cv2.threshold(gray_image, 150, 160, cv2.THRESH_BINARY)
+    # thresh, im_bw = cv2.threshold(gray_image, 150, 160, cv2.THRESH_BINARY)
 
-    no_noise = noise_removal(im_bw)
+    # no_noise = noise_removal(im_bw)
 
     ## Border remove
     # no_borders = remove_borders(no_noise)
@@ -38,6 +39,13 @@ def image_preprocessing(image, student_info):
     print(fuzz.token_sort_ratio(result, student_info))
     print(fuzz.token_set_ratio(result, student_info))
     return fuzz.token_set_ratio(student_info, result)
+
+
+def face_count_check(img):
+    face_location = face_recognition.face_locations(img)
+    if len(face_location) == 1:
+        return True
+    return False
 
 
 def noise_removal(img):

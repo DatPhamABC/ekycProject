@@ -3,10 +3,15 @@ import os
 from django.db import models
 
 
-def get_file_path(instance, filename):
+def get_id_image_path(instance, filename):
     ext = filename.split('.')[-1]
     filename = "%s.%s" % (instance.id, ext)
-    return os.path.join('images', filename)
+    return os.path.join('images/id', filename)
+
+
+def get_face_image_path(instance, filename):
+    filename = "%s.%s" % (instance.id, 'png')
+    return os.path.join('images/face', filename)
 
 
 class Student(models.Model):
@@ -30,4 +35,9 @@ class Student(models.Model):
     gender = models.CharField(max_length=1, choices=GENDER, default=None, null=True)
     class_year = models.CharField(max_length=15, null=False, blank=False)
     major = models.CharField(max_length=50, choices=MAJOR, null=False, blank=False)
-    id_image = models.ImageField(upload_to=get_file_path, null=True, blank=True)
+    id_image = models.ImageField(upload_to=get_id_image_path, null=True, blank=True)
+
+
+class FaceImage(models.Model):
+    id = models.OneToOneField(Student, on_delete=models.CASCADE, primary_key=True)
+    image = models.ImageField(upload_to=get_face_image_path, null=True, blank=True)
