@@ -1,8 +1,8 @@
-{% extends "id_capture/base.html" %}
+{% extends "base.html" %}
 {% block css %}
     {% load static %}
     <link rel="stylesheet" type='text/css' href="{% static 'css/import.css' %}">
-    <script src="{% static 'facial_capture.js' %}"></script>
+    <script type="text/javascript" src="{% static 'javascript/facial_capture.js' %}"></script>
 {% endblock %}
 
 {% block title %}
@@ -17,13 +17,12 @@
         <div class="container">
             <h1>Upload a file</h1>
             <div class="inner-container">
-<!--                <div class="border-container">-->
-<!--                    <img src="{% url 'facial_capture' %}" alt="">-->
-<!--                </div>-->
-                <form id="ajax-function-id" name="ajax-function-name">{% csrf_token %}
+                <form>
+                    {% csrf_token %}
                     <video id="video" width="640" height="480" autoplay></video>
-                    <input id="send" type="submit" value="submit">
+                    <button class="btn btn-block btn-primary tx-tfm" id="send" type="button">Snap</button>
                     <canvas id="image_canvas" width="640" height="480" style="background-color: grey"></canvas>
+                    <button class="btn btn-block btn-primary tx-tfm" id="image_submit" type="button">Submit</button>
                 </form>
             </div>
         </div>

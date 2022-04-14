@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block css %}
+    {% load static %}
+{% endblock %}
+
+{% block title %}
+    Sign up
+{% endblock %}
+
+{% block navbar %}
+<div class="logout">
+    <a class="nav-link" style="color:#9ab6fc" href="/logout">Logout</a>
+</div>
+{% endblock %}
+
+{% block body %}
+    <div class="wrapper">
+        <div class="container">
+            <h1>Đăng ký</h1>
+            <div class="inner-container">
+                <p>Bạn chưa đăng ký xác thực nhận dạng bằng khuôn mặt. Bạn có muốn đăng ký bây giờ?</p>
+                <a class="btn btn-block btn-primary tx-tfm">Không</a>
+                <a class="btn btn-block btn-primary tx-tfm">Có</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

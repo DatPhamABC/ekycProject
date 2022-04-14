@@ -19,8 +19,11 @@ $(document).ready(function () {
         context.translate(w, 0);
         context.scale(-1, 1);
         context.drawImage(video, 0, 0, w, h); // copy frame from <video>
-        canvas.toBlob(upload, "image/jpeg");  // convert to file and execute function `upload`
     });
+
+    document.getElementById("image_submit").addEventListener("click", function(){
+        canvas.toBlob(upload, "image/jpeg"); // convert to file and execute function `upload`
+    })
 
     function upload(file) {
         // create form and append file
@@ -38,12 +41,16 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             enctype: 'multipart/form-data',
-            success: function (){
-                alert('The post has been created!')
+            success: function(data){
+                alert('response received');
+                if (data.status == 0) {
+                    console.log('status failed');
+                    window.location.reload();
+                } else {
+                    console.log('status ok');
+                    window.location.href = '/login';
+                }
             },
-            error: function(xhr, errmsg, err) {
-                console.log(xhr.status + ":" + xhr.responseText)
-            }
         })
     }
 });

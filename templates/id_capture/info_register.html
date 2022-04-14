@@ -1,4 +1,4 @@
-{% extends "id_capture/base.html" %}
+{% extends "base.html" %}
 {% block css %}
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/import.css' %}">
@@ -14,7 +14,7 @@
 {% block body %}
     <div class="wrapper">
         <div class="container">
-            <h1>Upload a file</h1>
+            <h1>Đăng ký</h1>
             <div class="inner-container">
                 <div class="border-container">
                     <form method="POST"  enctype="multipart/form-data">{% csrf_token %}

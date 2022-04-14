@@ -1,13 +1,13 @@
 import cv2
 import face_recognition
 import pytesseract
+from django.http import HttpResponse
 from thefuzz import fuzz
 import numpy as np
 
 
 def image_preprocessing(image, student_info):
     image = cv2.imdecode(np.fromstring(image.read(), np.uint8), cv2.IMREAD_COLOR)
-    print(type(image))
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # thresh, im_bw = cv2.threshold(gray_image, 150, 160, cv2.THRESH_BINARY)
@@ -16,22 +16,16 @@ def image_preprocessing(image, student_info):
 
     ## Border remove
     # no_borders = remove_borders(no_noise)
-    print('here')
 
     pytesseract.pytesseract.tesseract_cmd = 'E:\\Program\\TesseractOCR\\tesseract.exe'
     # reader = easyocr.Reader(['vi'])
     # result = reader.readtext(no_borders)
     result = pytesseract.image_to_string(gray_image, lang="vie")
-
-    print(student_info)
-    print(type(student_info))
     result = str(result).replace(":", " ").lower()
-    print(result)
     # concat_string = ""
     # for i in result:
     #     concat_string = concat_string + i[1] + " "
 
-    # print(concat_string)
     # return fuzz.ratio(concat_string, student_info)*fuzz.ratio(student_info, concat_string)/100
     print(fuzz.ratio(student_info, result))
     print(fuzz.ratio(result, student_info))
@@ -42,10 +36,21 @@ def image_preprocessing(image, student_info):
 
 
 def face_count_check(img):
-    face_location = face_recognition.face_locations(img)
+    """
+    Check if there is only one person in the image
+    :param img: as InMemoryUploadedFile
+    :return: Boolean
+    """
+    face_location = face_recognition.face_locations(np.asarray(img))
     if len(face_location) == 1:
         return True
     return False
+
+
+def send_file_data(data, mimetype='image/jpeg', filename='output.jpg'):
+    response = HttpResponse(data, content_type=mimetype)
+    response['Content-Disposition'] = 'attachment; filename={}'.format(filename)
+    return response
 
 
 def noise_removal(img):

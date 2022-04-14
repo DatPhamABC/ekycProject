@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block css %}
+    {% load static %}
+    <link rel="stylesheet" type='text/css' href="{% static 'css/import.css' %}">
+    <script type="text/javascript" src="{% static 'javascript/facial_recognition.js' %}"></script>
+{% endblock %}
+
+{% block title %}
+    Sign up
+{% endblock %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block body %}
+    <div class="wrapper">
+        <div class="container">
+            <h1>Upload a file</h1>
+            <div class="inner-container">
+                <form>
+                    {% csrf_token %}
+<!--                    <canvas id="image_canvas" width="640" height="480" style="background-color: grey"></canvas>-->
+                    <video id="video" width="320" height="240" autoplay style="background-color: grey"></video>
+<!--                    <button id="send" type="button">Take & Send Photo</button>-->
+                    <canvas id="canvas" width="320" height="240" style="background-color: grey"></canvas>
+                    <img id="image" src="" width="320" height="240" style="background-color: grey"/>
+                    <img id="image64" src="" width="320" height="240" style="background-color: grey"/>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
