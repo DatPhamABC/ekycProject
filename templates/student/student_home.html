@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block css %}
+    {% load static %}
+    <link rel="stylesheet" type='text/css' href="{% static 'css/import.css' %}">
+{% endblock %}
+
+{% block title %}
+    Sign up
+{% endblock %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block body %}
+    <div class="wrapper">
+        <div class="container">
+            <h2> Welcome home {{ name }}</h2>
+        </div>
+    </div>
+{% endblock %}

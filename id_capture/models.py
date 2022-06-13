@@ -4,7 +4,7 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.db import models
 
 
-def get_file_path(instance, filename):
+def get_id_card_path(instance, filename):
     ext = filename.split('.')[-1]
     filename = "%s.%s" % (instance.id, ext)
     return os.path.join('images/id', filename)
@@ -15,10 +15,14 @@ def get_face_image_path(instance, filename):
     return os.path.join('images/face', filename)
 
 
+class IDCard(models.Model):
+    id_card = models.ImageField(upload_to=get_id_card_path, null=False, blank=False)
+
+
 class Student(AbstractBaseUser, models.Model):
     GENDER = [
-        ("M", 'Nam'),
-        ("F", 'Nữ'),
+        ("M", 'nam'),
+        ("F", 'nu'),
     ]
     MAJOR = [
         ("công nghệ thông tin", "Công nghệ thông tin"),
@@ -37,12 +41,20 @@ class Student(AbstractBaseUser, models.Model):
     gender = models.CharField(max_length=1, choices=GENDER, default=None, null=True)
     class_year = models.CharField(max_length=15, null=False, blank=False)
     major = models.CharField(max_length=50, choices=MAJOR, null=False, blank=False)
-    id_image = models.ImageField(upload_to=get_file_path, null=True, blank=True)
+    id_image = models.OneToOneField(IDCard, on_delete=models.CASCADE)
     face_image = models.BooleanField(default=False, null=False, blank=False)
 
     USERNAME_FIELD = 'name'
     REQUIRED_FIELDS = ['id', 'name', 'password', 'date_of_birth', 'gender', 'class_year',
                        'major', 'id_image', 'face_image']
+
+    def get_student_info(self):
+        student_info = ''
+        for key in self:
+            if 'id_image' in key.name or 'gender' in key.name or 'password' in key.name:
+                continue
+            student_info = student_info + str(key.value()) + " "
+        return student_info
 
 
 class FaceImage(models.Model):

@@ -20,8 +20,9 @@
                 <form>
                     {% csrf_token %}
                     <video id="video" width="640" height="480" autoplay></video>
+                    <canvas id="videoCanvas"></canvas>
                     <button class="btn btn-block btn-primary tx-tfm" id="send" type="button">Snap</button>
-                    <canvas id="image_canvas" width="640" height="480" style="background-color: grey"></canvas>
+                    <canvas id="image_canvas" style="background-color: grey">second</canvas>
                     <button class="btn btn-block btn-primary tx-tfm" id="image_submit" type="button">Submit</button>
                 </form>
             </div>

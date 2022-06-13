@@ -10,7 +10,7 @@ class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
         fields = ['id', 'name', 'password', 'confirm_password', 'date_of_birth',
-                  'gender', 'class_year', 'major', 'id_image']
+                  'gender', 'class_year', 'major']
         widgets = {
             'date_of_birth': DatePickerInput(),
             'password': forms.PasswordInput(),
@@ -22,7 +22,6 @@ class StudentForm(forms.ModelForm):
             'gender': 'Giới tính',
             'class_year': 'Khóa học',
             'major': 'Ngành học',
-            'id_image': 'Ảnh thẻ sinh viên',
         }
 
     def clean(self):

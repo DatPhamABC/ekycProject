@@ -63,8 +63,8 @@ $(document).ready(function () {
     var canvas = document.getElementById('canvas');
     var context = canvas.getContext('2d');
 
-    var image = document.getElementById('image');
-    var image64 = document.getElementById('image64');
+//    var image = document.getElementById('image');
+//    var image64 = document.getElementById('image64');
 
     var frames = 0;
     var start = window.performance.now();
@@ -82,7 +82,7 @@ $(document).ready(function () {
                 //context.drawImage(video, 0, 0);
                 context.drawImage(video, 0, 0, 320, 240); // better use size because camera may gives data in different size then <video> is displaying
 
-                image64.src = canvas.toDataURL();
+//                image64.src = canvas.toDataURL();
                 canvas.toBlob(upload, "image/jpeg");
             }, 100);
         });
@@ -115,12 +115,17 @@ $(document).ready(function () {
             contentType: false,
             enctype: 'multipart/form-data',
             success: function(data){
-                image.src = 'data:image/gif;base64,' + data;
-
+//                image.src = 'data:image/gif;base64,' + data;
+//
                 frames = frames + 1;
                 var seconds = (window.performance.now() - start) / 1000;
                 var fps = Math.round(frames / seconds);
                 console.log(fps);
+
+                if (data.status == 1) {
+                    console.log('status ok');
+                    window.location.href = '/student';
+                }
 //                $(img).attr('src', 'data:image/gif;base64,' + data);
 //                $(img).appendTo('#image_id');
 //                image.appendTo('#image');
