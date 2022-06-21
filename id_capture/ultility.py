@@ -75,9 +75,11 @@ def face_recog(registered_image, cam_feed):
 def prepare_image(cvImage):
 
     def get_sub_image(rect, img):
-        # Get center, size, and angle from rect
+        # Get center, size, and angle from rect with card proportion (width/length = 0.63)
+        prop = 0.63
         center, size, theta = rect
         size = tuple(reversed(size))
+        size = (size[0], size[0] * prop)
 
         # Convert to int
         center, size = tuple(map(int, center)), tuple(map(int, size))
@@ -92,9 +94,10 @@ def prepare_image(cvImage):
 
     # Convert request to cv2 image
     newImage = cv2.imdecode(np.fromstring(cvImage.read(), np.uint8), cv2.IMREAD_COLOR)
+    rgbImage = cv2.cvtColor(newImage, cv2.COLOR_BGR2RGB)
 
     # Prep image (copy, convert to hsv, h and threshold)
-    hsv = cv2.cvtColor(newImage, cv2.COLOR_RGB2HSV)
+    hsv = cv2.cvtColor(rgbImage, cv2.COLOR_RGB2HSV)
     h, s, v = cv2.split(hsv)
     ret, thresh = cv2.threshold(h, 50, 255, cv2.THRESH_OTSU)
 
@@ -112,16 +115,13 @@ def prepare_image(cvImage):
 
 
 def get_ocr_result(image):
-    # Preparing image (deskew, crop)
-    prep = preparing_image(image)
-
     # Convert image to grayscale
-    gray = cv2.cvtColor(prep, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # Put into PaddleOCR
-    paddle_ocr = PaddleOCR(lang='eng')
+    paddle_ocr = PaddleOCR(lang='en')
     ocr_result = paddle_ocr.ocr(gray, cls=True)
-    print(ocr_result)
+    return ocr_result
 
 
 def prepare_ocr_result(image, ocr_result):
@@ -165,20 +165,21 @@ def prepare_ocr_result(image, ocr_result):
         return card_result
 
     def correct_info(card_result):
-        card_result['name'] = card_result['name'].split(':', 1)[-1]\
-            .lower().replace('ho va ten', '')\
-            .replace('hovaten', '')\
-            .replace('ho vaten', '')\
-            .replace('hova ten', '')\
-            .strip(string.punctuation)\
-            .capitalize()
+        card_result['name'] = string.capwords(card_result['name'].split(':', 1)[-1]
+                                              .lower().replace('ho va ten', '')
+                                              .replace('hovaten', '')
+                                              .replace('ho vaten', '')
+                                              .replace('hova ten', '')
+                                              .strip(string.punctuation))
 
         card_result['id'] = re.sub('[^09]', '', card_result['id'])
 
-        card_result['date_of_birth'] = card_result['date_of_birth'].split(':', 1)[-1]\
+        date_of_birth_list = card_result['date_of_birth'].split(':', 1)[-1]\
             .lower().replace('ngaysinh', '')\
             .replace('ngay sinh', '')\
-            .strip(string.punctuation)
+            .strip(string.punctuation).split('/', -1)
+        date_of_birth_list.reverse()
+        card_result['date_of_birth'] = '-'.join(date_of_birth_list)
 
         card_result['gender'] = card_result['gender'].split(':', 1)[-1]\
             .lower().replace('gioi tinh', '')\
@@ -206,7 +207,7 @@ def prepare_ocr_result(image, ocr_result):
         ['id', [13.6, 72.36]]
     ]
 
-    width, length = image.shape
+    width, length, _ = image.shape
     centroid_list = get_centroid_list(ocr_result, width, length)
     result = find_info(card_info_list, centroid_list, ocr_result)
     corrected_result = correct_info(result)
@@ -219,4 +220,4 @@ def compare_result(form_info, prepared_ocr_result):
     print(fuzz.partial_ratio(form_info, prepared_ocr_result))
     print(fuzz.token_sort_ratio(form_info, prepared_ocr_result))
     print(fuzz.token_set_ratio(form_info, prepared_ocr_result))
-    return fuzz.token_set_ratio(form_info, prepared_ocr_result)
+    return fuzz.token_sort_ratio(form_info, prepared_ocr_result)

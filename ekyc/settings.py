@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'id_capture',
-    'flatpickr',
+    'bootstrap_datepicker_plus',
 ]
 
 MIDDLEWARE = [
@@ -109,9 +109,9 @@ LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
-USE_I18N = True
+USE_I18N = False
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -177,3 +177,7 @@ AUTHENTICATION_BACKENDS = [
 # Login
 
 LOGIN_URL = '/'
+
+# Date format
+
+DATE_FORMAT = 'Y-m-d'

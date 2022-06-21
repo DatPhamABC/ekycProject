@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block css %}
     {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/student.css' %}">
 {% endblock %}
 
 {% block title %}
@@ -19,8 +20,8 @@
             <h1>Đăng ký</h1>
             <div class="inner-container">
                 <p>Bạn chưa đăng ký xác thực nhận dạng bằng khuôn mặt. Bạn có muốn đăng ký bây giờ?</p>
-                <a class="btn btn-block btn-primary tx-tfm">Không</a>
-                <a class="btn btn-block btn-primary tx-tfm">Có</a>
+                <a class="btn btn-block btn-primary tx-tfm" href="/student">Không</a>
+                <a class="btn btn-block btn-primary tx-tfm" href="/student_face_recognition">Có</a>
             </div>
         </div>
     </div>

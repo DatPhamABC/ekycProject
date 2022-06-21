@@ -1,4 +1,5 @@
 import base64
+import uuid
 from datetime import datetime
 
 import cv2
@@ -8,6 +9,8 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.files import File
+from django.core.files.base import ContentFile
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.http import JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -20,10 +23,14 @@ from id_capture.ultility import face_count_check, send_file_data, face_recog, pr
 
 
 def home(request):
+    if request.user.is_authenticated:
+        return redirect('student')
     return render(request, "signup/home.html")
 
 
 def login_student(request):
+    if request.user.is_authenticated:
+        return redirect('student')
     print('login page')
     if request.method == "POST":
         form = SigninForm(request.POST)
@@ -79,13 +86,17 @@ def login_student_recognition(request):
 
 def card_register(request):
     if request.method == 'POST':
+        if 'idcard_info' in request.session:
+            del request.session['idcard_info']
         img = request.FILES['file-upload-input']
         if img:
             new_image = prepare_image(img)
-
-            print('image sent')
-            idcard = IDCard.objects.create(id_card=File(new_image))
+            ret, encode_img = cv2.imencode('.png', new_image)
+            img_file = ContentFile(encode_img)
+            idcard = IDCard.objects.create(id=uuid.uuid4().hex)
+            idcard.id_card.save('pic.png', img_file, save=True)
             request.session['idcard.id'] = idcard.id
+            return redirect('info_register')
         else:
             print('no image')
     return render(request, 'signup/card_register.html')
@@ -94,45 +105,68 @@ def card_register(request):
 def register_form(request):
     idcard_info = None
     if request.session['idcard.id']:
-        idcard = IDCard.objects.get(id=request.session['idcard.id'])
-        idcard_image = cv2.imread(idcard.id_card.url)
-        ocr_result = get_ocr_result(idcard_image)
-        idcard_info = prepare_ocr_result(idcard_image, ocr_result)
-        print(idcard_info)
+        if 'idcard_info' not in request.session:
+            idcard = IDCard.objects.get(id=request.session['idcard.id'])
+            if idcard:
+                idcard_image = cv2.imread(str(idcard.id_card.url)[1:])
+                ocr_result = get_ocr_result(idcard_image)
+                idcard_info = prepare_ocr_result(idcard_image, ocr_result)
+                request.session['idcard_info'] = idcard_info
+        else:
+            idcard_info = request.session['idcard_info']
 
     if request.method == 'POST':
-        form = StudentForm(request.POST, request.FILES)
+        form = StudentForm(request.POST)
         if form.is_valid():
             student = form.save(commit=False)
             clearPassNoHash = form.cleaned_data['password']
             student.set_password(clearPassNoHash)
-            student_info = student.get_student_info()
+            student_info = ""
+            for key in form:
+                if 'id_image' in key.name or 'gender' in key.name or 'password' in key.name:
+                    continue
+                student_info = student_info + str(key.value()) + " "
 
-            if compare_result(student_info, idcard_info) > 70:
-                # student.save()
+            idcard_text = str(idcard_info['id']) + ' ' \
+                          + str(idcard_info['name']) + ' ' \
+                          + str(idcard_info['date_of_birth']) + ' ' \
+                          + str(idcard_info['class_year']) + ' ' \
+                          + str(idcard_info['major'])
 
-                # user = authenticate(request, id=student.id, password=student.password)
-                # login(request, user)
-                print('SUCCESSSSSSSSSSSSSSSSSSS')
-                # return redirect('facial_capture')
+            if compare_result(student_info, idcard_text) > 90:
+                student.save()
+
+                print('student pwd: ' + str(form['password'].value()))
+                user = authenticate(request, id=student.id, password=form['password'].value(),
+                                    backend='id_capture.backends.StudentBackend')
+                print(user)
+                login(request, user, backend='id_capture.backends.StudentBackend')
+                return redirect('facial_capture')
     else:
-        form = StudentForm()
+        form = StudentForm(initial={
+            'id': idcard_info['id'],
+            'name': idcard_info['name'],
+            'date_of_birth': idcard_info['date_of_birth'],
+            'gender': idcard_info['gender'],
+            'class_year': idcard_info['class_year'],
+            'major': idcard_info['major']
+        })
 
     return render(request, 'signup/info_register.html', {'form': form})
 
 
-# @login_required(redirect_field_name='', login_url=None)
+@login_required(redirect_field_name='', login_url=None)
 def facial_capture(request):
     if request.method == 'POST':
         fs = request.FILES['snap']
         if fs:
             if face_count_check(Image.open(fs)):
-                # student = request.user
-                # if not student.is_anonymous():
-                #     FaceImage.objects.create(student=student, image=fs)
-                #     messages.success(request=request, message='Signup successfully.')
-                #     student.face_image = True
-                #     student.save()
+                student = request.user
+                if not student.is_anonymous():
+                    FaceImage.objects.create(student=student, image=fs)
+                    messages.success(request=request, message='Signup successfully.')
+                    student.face_image = True
+                    student.save()
                 print('image received')
                 return JsonResponse({"status": 1})
             messages.error(request=request,
@@ -145,7 +179,7 @@ def facial_capture(request):
 
 @login_required(redirect_field_name='', login_url=None)
 def student(request):
-    render(request, 'student/student_home.html', {'name': request.user.name})
+    return render(request, 'student/student_home.html', {'name': request.user.name})
 
 
 @login_required(redirect_field_name='', login_url=None)
