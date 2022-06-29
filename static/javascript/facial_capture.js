@@ -51,7 +51,6 @@ $(document).ready(function () {
             contentType: false,
             enctype: 'multipart/form-data',
             success: function(data){
-                alert('response received');
                 if (data.status == 0) {
                     console.log('status failed');
                     window.location.reload();

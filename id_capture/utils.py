@@ -172,7 +172,7 @@ def prepare_ocr_result(image, ocr_result):
                                               .replace('hova ten', '')
                                               .strip(string.punctuation))
 
-        card_result['id'] = re.sub('[^09]', '', card_result['id'])
+        card_result['id'] = re.sub(r'\D', '', card_result['id'])
 
         date_of_birth_list = card_result['date_of_birth'].split(':', 1)[-1]\
             .lower().replace('ngaysinh', '')\

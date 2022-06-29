@@ -7,7 +7,6 @@ from django.db import models
 def get_id_card_path(instance, filename):
     ext = filename.split('.')[-1]
     filename = "%s.%s" % (instance.id, ext)
-    print('filename: ' + str(filename))
     return os.path.join('images/id', filename)
 
 
